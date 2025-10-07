@@ -2,8 +2,16 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-INSTANCE_DIR = BASE_DIR / "instance"
-INSTANCE_DIR.mkdir(exist_ok=True)
+
+# Prefer Railway's mounted volume for persistent instance data (DB, keys)
+_railway_mount_root = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH") or "/mnt/data"
+if os.path.ismount(_railway_mount_root) or os.path.exists(_railway_mount_root):
+    _instance_base = Path(_railway_mount_root)
+else:
+    _instance_base = BASE_DIR
+
+INSTANCE_DIR = _instance_base / "instance"
+INSTANCE_DIR.mkdir(parents=True, exist_ok=True)
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-change-me")
