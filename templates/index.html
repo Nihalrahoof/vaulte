@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Vaultly - Secure Vault{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1 class="title text-balance">A minimal, elegant vault for your important documents and data.</h1>
+  <p class="subtitle">Store PDFs (Aadhaar, PAN, degrees) and secure data like card or PAN numbers — encrypted and accessible on all your devices.</p>
+  <div class="actions">
+    <a class="btn" href="{{ url_for('register') }}">Get Started</a>
+    <a class="btn btn--ghost" href="{{ url_for('login') }}">I already have an account</a>
+  </div>
+</section>
+{% endblock %}

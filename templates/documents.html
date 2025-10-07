@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Documents - Vaultly{% endblock %}
+{% block content %}
+<h1 class="page-title">Documents</h1>
+<section class="card form">
+  <h2 class="card__title">Upload PDF</h2>
+  <form method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Title
+      <input type="text" name="title" required placeholder="e.g., Aadhaar Card" />
+    </label>
+    <label>PDF File
+      <input type="file" name="file" accept="application/pdf" required />
+    </label>
+    <button class="btn w-full" type="submit">Upload</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2 class="card__title">Your PDFs</h2>
+  <div class="docs-grid">
+    {% if docs %}
+      {% for d in docs %}
+      <div class="doc-card">
+        <div class="pdf-thumb" data-doc-id="{{ d.id }}" data-doc-title="{{ d.title }}" data-doc-url="{{ url_for('view_document', doc_id=d.id) }}">
+          <iframe
+            title="{{ d.title }} preview"
+            src="{{ url_for('view_document', doc_id=d.id) }}#toolbar=0&navpanes=0&scrollbar=0"
+            loading="lazy"
+          ></iframe>
+          <div class="thumb-overlay">Preview</div>
+        </div>
+        <div class="doc-meta">
+          <div class="doc-title">{{ d.title }}</div>
+          <div class="muted doc-filename">{{ d.original_filename }}</div>
+        </div>
+        <div class="doc-actions">
+          <button class="btn btn--sm js-open-preview" data-doc-id="{{ d.id }}" data-doc-url="{{ url_for('view_document', doc_id=d.id) }}" data-doc-title="{{ d.title }}">Open</button>
+          <a class="btn btn--sm btn--ghost" href="{{ url_for('download_document', doc_id=d.id) }}">Download</a>
+          <form method="post" action="{{ url_for('delete_document', doc_id=d.id) }}" onsubmit="return confirm('Delete this document?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn btn--sm btn--ghost" type="submit">Delete</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="muted">No documents yet.</div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Modal for full PDF preview -->
+<div id="pdfModal" class="modal" aria-hidden="true">
+  <div class="modal__backdrop" data-dismiss></div>
+  <div class="modal__dialog" role="dialog" aria-modal="true" aria-label="PDF Preview">
+    <div class="modal__header">
+      <div class="modal__title" id="modalTitle">Document</div>
+      <button class="btn btn--ghost btn--sm" type="button" data-dismiss>&times;</button>
+    </div>
+    <div class="modal__body">
+      <iframe id="modalIframe" title="PDF viewer" src="about:blank"></iframe>
+    </div>
+  </div>
+  </div>
+
+<script>
+  (function() {
+    const modal = document.getElementById('pdfModal')
+    const iframe = document.getElementById('modalIframe')
+    const modalTitle = document.getElementById('modalTitle')
+    function openModal(url, title) {
+      modal.setAttribute('aria-hidden', 'false')
+      iframe.src = url + '#toolbar=1'
+      modalTitle.textContent = title || 'Document'
+      document.body.style.overflow = 'hidden'
+    }
+    function closeModal() {
+      modal.setAttribute('aria-hidden', 'true')
+      iframe.src = 'about:blank'
+      document.body.style.overflow = ''
+    }
+    modal.addEventListener('click', (e) => {
+      if (e.target.hasAttribute('data-dismiss')) closeModal()
+    })
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal()
+    })
+    // Click handlers for thumbnails and buttons
+    document.querySelectorAll('.pdf-thumb, .js-open-preview').forEach((el) => {
+      el.addEventListener('click', () => {
+        const url = el.getAttribute('data-doc-url')
+        const title = el.getAttribute('data-doc-title') || 'Document'
+        if (!url) return
+        openModal(url, title)
+      })
+    })
+  })()
+  </script>
+{% endblock %}

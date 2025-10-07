@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Vaultly{% endblock %}</title>
+
+    <meta name="theme-color" content="#0a0a0a" />
+    <link rel="manifest" href="{{ url_for('manifest') }}" />
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="nav__brand">Vaultly</div>
+      <nav class="nav__links">
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('documents') }}">Docs</a>
+        <a href="{{ url_for('secrets') }}">Data</a>
+        <a class="btn btn--ghost" href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a class="btn" href="{{ url_for('register') }}">Create account</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    <main class="container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div class="flash">
+        {% for category, message in messages %}
+        <div class="flash__item {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+      <p class="muted">Made with care. Install this app for a native-like experience.</p>
+    </footer>
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>

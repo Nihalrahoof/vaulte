@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Vaultly{% endblock %}
+{% block content %}
+<h1 class="page-title">Dashboard</h1>
+<div class="widgets">
+  <div class="widget widget--xl">
+    <div class="widget__header">
+      <span class="dot"></span>
+      <h3>Quick Actions</h3>
+    </div>
+    <div class="grid grid-2">
+      <a class="quick" href="{{ url_for('documents') }}">
+        <div class="quick__icon">📄</div>
+        <div>
+          <div class="quick__title">Upload PDF</div>
+          <div class="quick__desc">Store Aadhaar, PAN, degrees</div>
+        </div>
+      </a>
+      <a class="quick" href="{{ url_for('secrets') }}">
+        <div class="quick__icon">🔐</div>
+        <div>
+          <div class="quick__title">Save Secure Data</div>
+          <div class="quick__desc">Card and PAN numbers</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="widget">
+    <div class="widget__header">
+      <span class="dot"></span>
+      <h3>Documents</h3>
+    </div>
+    <div class="metric">
+      <div class="metric__value">{{ docs_count }}</div>
+      <div class="metric__label">Total PDFs</div>
+    </div>
+  </div>
+
+  <div class="widget">
+    <div class="widget__header">
+      <span class="dot"></span>
+      <h3>Secure Data</h3>
+    </div>
+    <div class="metric">
+      <div class="metric__value">{{ secrets_count }}</div>
+      <div class="metric__label">Items stored</div>
+    </div>
+  </div>
+
+  <div class="widget widget--wide">
+    <div class="widget__header">
+      <span class="dot"></span>
+      <h3>Recent PDFs</h3>
+    </div>
+    <ul class="list">
+      {% if recent_docs %}
+      {% for d in recent_docs %}
+      <li class="list__item">
+        <span>{{ d.title }}</span>
+        <div>
+          <a class="btn btn--sm" href="{{ url_for('download_document', doc_id=d.id) }}">Download</a>
+        </div>
+      </li>
+      {% endfor %}
+      {% else %}
+      <li class="list__item muted">No recent documents.</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
